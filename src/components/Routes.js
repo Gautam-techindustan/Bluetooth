@@ -14,8 +14,9 @@ import {
 
 
 const mainNav = createSwitchNavigator({
+    BluetoothConnect : BluetoothConnect,
   Homepage: Homepage,
-  BluetoothConnect : BluetoothConnect
+
 });
 const Routes = createAppContainer(mainNav);
 
