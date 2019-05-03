@@ -120,7 +120,12 @@ export default class Homepage extends Component {
 
   handleDisconnectedPeripheral(data) {
     let peripherals = this.state.peripherals;
+    console.log(peripherals , "disconnect");
+    
+
     let peripheral = peripherals.get(data.peripheral);
+
+    console.log(peripheral , "disconnect>>>>>>");
     if (peripheral) {
       peripheral.connected = false;
       peripherals.set(peripheral.id, peripheral);
@@ -248,6 +253,7 @@ export default class Homepage extends Component {
 
   test(peripheral) {
     if (peripheral) {
+  
       if (peripheral.connected) {
         BleManager.disconnect(peripheral.id);
         this.setState({ connected: false });
@@ -273,7 +279,7 @@ export default class Homepage extends Component {
                     peripheralInfo.characteristics[4].characteristic;
                   console.log("id >", peripheralInfo);
                   this.setState({ device: peripheralInfo, connected: true }, () =>
-                    this.props.navigation.navigate("BluetoothConnect", { item: JSON.stringify(peripheralInfo) }));
+                    this.props.navigation.navigate("BluetoothConnect", { item: JSON.stringify(peripheralInfo) ,peripherals:JSON.stringify(peripherals) }));
 
                   BleManager.read(peripheral.id, service, characteristic)
                     .then(readData => {

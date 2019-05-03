@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
 import {
-    Text,
-    Button,
-    NativeModules,
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TouchableHighlight,
+  NativeAppEventEmitter,
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+  PermissionsAndroid,
+  ListView,
+  ScrollView,
+  AppState,
+  Dimensions,
+  Alert
 } from 'react-native'
 import BleManager from "react-native-ble-manager";
 import arraybuffer from "arraybuffer-to-string";
+import axios from 'axios'
 import { stringToBytes } from "convert-string";
 
-const window = Dimensions.get("window");
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
+
 const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 const BleManagerModule = NativeModules.BleManager;
@@ -21,15 +37,13 @@ class BluetoothConnect extends Component {
 
         this.state = {
             device: "",
-            finalHeight: ""
+            finalHeight: "10",
+            appState:"",
+            connected: false
         };
 
-        this.handleUpdateValueForCharacteristic = this.handleUpdateValueForCharacteristic.bind(
-            this
-        );
-        this.handleDisconnectedPeripheral = this.handleDisconnectedPeripheral.bind(
-            this
-        );
+        this.handleUpdateValueForCharacteristic = this.handleUpdateValueForCharacteristic.bind(this);
+        this.handleDisconnectedPeripheral = this.handleDisconnectedPeripheral.bind(this);
         this.handleAppStateChange = this.handleAppStateChange.bind(this);
     }
 
@@ -45,8 +59,44 @@ class BluetoothConnect extends Component {
         );
 
         let data = JSON.parse(this.props.navigation.getParam("item"));
-        console.log(data, "data after connected ");
+        let data1 = JSON.parse(this.props.navigation.getParam("peripherals"));
+        console.log(data, "data after connected " ,data1);
         this.setState({ device: data })
+    }
+
+      handleAppStateChange(nextAppState) {
+        if (
+            this.state.appState.match(/inactive|background/) &&
+            nextAppState === "active"
+        ) {
+            console.log("App has come to the foreground!");
+            BleManager.getConnectedPeripherals([]).then(peripheralsArray => {
+                console.log("Connected peripherals: " + peripheralsArray.length);
+        });
+        }
+        this.setState({ appState: nextAppState });
+    }
+
+    componentWillUnmount() {
+        this.handlerDisconnect.remove();
+        this.handlerUpdate.remove();
+    }
+
+    handleDisconnectedPeripheral(data) {
+        const { device } = this.state;
+        if (device) {
+            device.set(device.id, device);
+        }
+        console.log("Disconnected from " + device.id  );
+    }
+    handleUpdateValueForCharacteristic(data) {
+        console.log(
+        "Received data from " +
+        data.peripheral +
+        " characteristic " +
+        data.characteristic,
+        data.value
+        );
     }
 
     goBack = () => {
@@ -70,39 +120,79 @@ class BluetoothConnect extends Component {
                 let buffer = new Uint8Array(readData);
 
                 let data1 = arraybuffer(buffer);
-                console.log("dataaaaaaa ==", data1);
+                 let bodyFormData = new FormData();
+                    bodyFormData.append('data', JSON.stringify(data1));
 
-                if (data1) {
+                axios({
+                method: 'post',
+                url: 'http://devskart.com/bluetooth/index.php',
+                data: bodyFormData
+                })
+                .then(function (response) {
+                    Alert.alert("Data sent successfully");
+                console.log(response , "api response");
+                })
+                .catch(function (error) {
+                    Alert.alert("please try again");
+                console.log(error , "api eror");
+                });
+
+                console.log("dataaaaaaa ==", data1);
                     this.setState({
                         finalHeight: data1
                     });
-                }
+
             })
             .catch(error => {
                 // Failure code
                 console.log("dataaa", error);
             });
+    }
 
+    disconnect = () =>{
+        const { device } = this.state;
+        BleManager.disconnect(device.id);
     }
 
     render() {
-        const { finalHeight } = this.props;
+        const { finalHeight } = this.state;
         return (
             <React.Fragment>
-                {
-                    finalHeight ? <Text
-                        style={{ flex: 1, justifyContent: "center", alignSelf: "center" }}
-                    >
-                        Recieving data is {finalHeight}
-                    </Text> : null}
-
-                <Button title="Send" onPress={this.sendData} ></Button>
-                <Button title="Recieve data" onPress={this.recieveData} ></Button>
-                <Text>hbguyh </Text>
-                <Button title="Go Back" onPress={this.goBack} ></Button>
+                    <View style={styles.container}>
+                        <View style={styles.upperTabs}>
+                            <Button title="Send" onPress={this.sendData}  ></Button>
+                            <Button title="Recieve" onPress={this.recieveData} ></Button>
+                            <Button title="Disconnect" ></Button>
+                        </View>
+                        
+                            { true ? 
+                            <Text style={{ textAlign:"center" , width:"100%" , paddingBottom:10 , fontSize:20 }}>
+                            {`Recieving data is ${finalHeight}`}
+                            </Text> : null
+                            }
+                    </View>
             </React.Fragment>
         );
     }
 }
 
 export default BluetoothConnect;
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#ddf0fd",
+    alignContent:"center",
+    justifyContent:"center"
+  },
+  upperTabs:{
+      width:"100%",
+      justifyContent:"space-around",
+      display:"flex",
+      flexDirection:"row",
+      marginTop:20,
+      marginBottom:20
+  }
+
+});
