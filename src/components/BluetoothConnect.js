@@ -215,8 +215,8 @@ const styles = StyleSheet.create({
     textAlign:"center",
   },
   recievedData:{
-      flex:1,
-      alignItems:"center",
+    flex:1,
+    alignItems:"center",
     color:"#fff",
     textAlign:"center"
 
