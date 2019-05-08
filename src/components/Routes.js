@@ -8,14 +8,19 @@ import {
 
 import { Text, View, TouchableOpacity, Image, YellowBox } from "react-native";
 import {
-    Homepage,
-    BluetoothConnect
+  Homepage,
+  BluetoothConnect,
+  BluetoothList,
+  SplashScreen
 } from './'
 
 
 const mainNav = createSwitchNavigator({
-    BluetoothConnect : BluetoothConnect,
+  SplashScreen: SplashScreen,
   Homepage: Homepage,
+  BluetoothList: BluetoothList,
+  BluetoothConnect: BluetoothConnect,
+
 
 });
 const Routes = createAppContainer(mainNav);
