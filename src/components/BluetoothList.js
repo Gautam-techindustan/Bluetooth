@@ -156,9 +156,10 @@ export default class BluetoothList extends Component {
 
   startScan() {
     console.log("start scan")
+    BleManager.enableBluetooth();
     if (!this.state.scanning) {
       this.setState({ peripherals: new Map() });
-      BleManager.scan([], 5, true).then(results => {
+      BleManager.scan([], 5, false, scanOptions = { scanMode: 1, matchMode: 2 }).then(results => {
         console.log("Scanning...");
         this.setState({ scanning: true });
       });
@@ -302,7 +303,7 @@ export default class BluetoothList extends Component {
   render() {
     const list = Array.from(this.state.peripherals.values());
     const dataSource = ds.cloneWithRows(list);
-    let scan = this.state.scanning ? "#ff8484" : "#a2a7ab";
+    let scan = this.state.scanning ? "#8addd5" : "#ff92be";
 
     return (
       <View style={styles.container}>
@@ -321,7 +322,7 @@ export default class BluetoothList extends Component {
                 enableEmptySections={true}
                 dataSource={dataSource}
                 renderRow={item => {
-                  const color = item.connected ? "#a0ffbe" : "#d2e6f3";
+                  const color = item.connected ? "#a0ffbe" : "#fff";
                   return (
                     <View>
                       <View
@@ -351,8 +352,8 @@ export default class BluetoothList extends Component {
                             </Text>
                           </View>
                           <TouchableHighlight
-                            underlayColor="#d2e6f3"
-                            style={{ padding: 10 }}
+                            underlayColor="#green"
+                            style={{ padding: 10, color: "green" }}
                             onPress={() => this.test(item)}
                           >
                             <View
@@ -392,7 +393,7 @@ export default class BluetoothList extends Component {
         </View>
         <View style={{ flexDirection: "row", margin: 10 }}>
           <TouchableHighlight
-            underlayColor="#ddf0fd"
+            underlayColor="#8addd5"
             style={{
               padding: 20,
               backgroundColor: scan,
@@ -415,7 +416,7 @@ export default class BluetoothList extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ddf0fd",
+    backgroundColor: "#fff",
     width: window.width,
     height: window.height
   },
@@ -432,7 +433,6 @@ const styles = StyleSheet.create({
     margin: 10
   },
   circle: {
-    backgroundColor: "orange",
     borderRadius: 50,
     width: 30,
     height: 30,
@@ -449,7 +449,6 @@ const styles = StyleSheet.create({
     width: 50
   },
   list: {
-    color: "red",
     flex: 1,
     marginVertical: 5
   }

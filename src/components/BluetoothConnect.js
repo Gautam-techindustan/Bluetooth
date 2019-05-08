@@ -159,28 +159,38 @@ class BluetoothConnect extends Component {
                 <View style={styles.container}>
                     <View style={styles.logo}>
                         <Image style={{
-                            height: 165,
+                            height: 143,
                             width: 200
                         }} source={require("../assets/last.png")} />
                     </View>
                     <View style={styles.Data}>
                         {true ?
                             (<View >
-                                <View style={{ marginLeft: 10, justifyContent: "center", height: 100, width: 100, borderRadius: 50, borderColor: "black", borderWidth: 5 }}>
+                                <View style={{ marginLeft: 10, justifyContent: "center", height: 100, width: 100, borderRadius: 50, borderColor: "rgba(255,00,00,0.8)", borderWidth: 15 }}>
                                     <Text style={{ textAlign: "center", width: "100%", fontSize: 30 }}>
                                         {finalHeight}
                                     </Text>
                                 </View>
+
                             </View>) : null
                         }
+                        <Text style={{ textAlign: "center", paddingLeft: 10, paddingTop: 10 }}>Weight: 15 Kg   </Text>
                     </View>
                     <View style={styles.upperTabs}>
-                        <Button style={styles.buttonClass} onPress={this.recieveData} >
-                            <Text style={styles.recievedData}>Recieve</Text>
-                        </Button>
-                        <Button style={styles.buttonClass} >
+                        <TouchableHighlight
+                            underlayColor="#ff92be"
+                            style={styles.buttonClass}
+                            onPress={this.recieveData}
+                        >
+                            <Text style={styles.recievedData}>Receive</Text>
+                        </TouchableHighlight>
+                        <TouchableHighlight
+                            underlayColor="#ff92be"
+                            style={styles.buttonClass}
+                            onPress={this.disconnect}
+                        >
                             <Text style={styles.recievedData}>Disconnect </Text>
-                        </Button>
+                        </TouchableHighlight>
                     </View>
                 </View>
 
@@ -195,7 +205,7 @@ export default BluetoothConnect;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ddf0fd",
+        backgroundColor: "#fff",
         alignContent: "center",
         justifyContent: "center",
         alignItems: "center",
@@ -209,7 +219,8 @@ const styles = StyleSheet.create({
     },
     Data: {
         display: "flex",
-        flex: 1
+        flex: 1,
+        textAlign: "center"
     },
     logo: {
         display: "flex",
@@ -219,11 +230,10 @@ const styles = StyleSheet.create({
     buttonClass: {
         marginTop: 20,
         width: 300,
-        textAlign: "center",
+        padding: 20,
+        backgroundColor: "#ff92be"
     },
     recievedData: {
-        flex: 1,
-        alignItems: "center",
         color: "#fff",
         textAlign: "center",
 

@@ -31,7 +31,7 @@ export default SplashScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ddf0fd",
+        backgroundColor: "#fff",
         alignContent: "center",
         justifyContent: "center",
         alignItems: "center",
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignContent: "center",
         alignItems: "center",
-        height: 200,
+        height: 108,
         width: 200
     },
 });

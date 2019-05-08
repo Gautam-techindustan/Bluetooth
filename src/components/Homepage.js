@@ -4,9 +4,12 @@ import {
     StyleSheet,
     Text,
     View,
-    Image
+    Image,
+    TouchableHighlight
 } from "react-native";
 import { Button } from 'native-base';
+import BleManager from "react-native-ble-manager";
+
 
 class Homepage extends Component {
     constructor() {
@@ -15,22 +18,36 @@ class Homepage extends Component {
         this.state = {
             peripherals: new Map(),
         };
-
     }
+
+
+    buttonPressed = () => {
+
+        BleManager.enableBluetooth();
+        this.props.navigation.navigate("BluetoothList")
+    }
+
+
 
     render() {
         return (
             <View style={styles.container}>
                 <View style={styles.logo}>
                     <Image style={{
-                        height: 260,
+                        height: 217,
                         width: 300
                     }} source={require("../assets/secondscreen.png")} />
                 </View>
                 <View style={styles.upperTabs}>
-                    <Button style={styles.buttonClass} onPress={() => this.props.navigation.navigate("BluetoothList")} >
+
+                    <TouchableHighlight
+                        underlayColor="#ff92be"
+                        style={styles.buttonClass}
+                        onPress={this.buttonPressed}
+                    >
                         <Text style={styles.recievedData} >Get Started</Text>
-                    </Button>
+                    </TouchableHighlight>
+
                 </View>
             </View>);
     }
@@ -41,7 +58,7 @@ export default Homepage;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ddf0fd",
+        backgroundColor: "#fff",
         alignContent: "center",
         justifyContent: "flex-end",
         alignItems: "center",
@@ -61,13 +78,11 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     buttonClass: {
-        marginTop: 10,
         width: 300,
-        textAlign: "center",
+        padding: 20,
+        backgroundColor: "#ff92be"
     },
     recievedData: {
-        flex: 1,
-        alignItems: "center",
         color: "#fff",
         textAlign: "center"
     },
