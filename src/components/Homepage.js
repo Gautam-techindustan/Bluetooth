@@ -41,7 +41,7 @@ class Homepage extends Component {
                 <View style={styles.upperTabs}>
 
                     <TouchableHighlight
-                        underlayColor="#ff92be"
+                        // underlayColor="#ff92be"
                         style={styles.buttonClass}
                         onPress={this.buttonPressed}
                     >

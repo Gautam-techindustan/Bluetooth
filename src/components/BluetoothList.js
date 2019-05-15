@@ -258,7 +258,8 @@ export default class BluetoothList extends Component {
               this.setState({ peripherals });
             }
             console.log("Connected to " + peripheral.id);
-
+            // console.log(peripheral,"peripheral dataaaaaaaaaaaaaaa");
+            // 
             setTimeout(async () => {
               BleManager.retrieveServices(peripheral.id)
                 .then(peripheralInfo => {
@@ -352,8 +353,8 @@ export default class BluetoothList extends Component {
                             </Text>
                           </View>
                           <TouchableHighlight
-                            underlayColor="#green"
-                            style={{ padding: 10, color: "green" }}
+                            underlayColor="green"
+                            // style={{ padding: 10, color: "green" }}
                             onPress={() => this.test(item)}
                           >
                             <View
