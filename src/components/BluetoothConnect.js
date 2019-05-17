@@ -44,7 +44,8 @@ class BluetoothConnect extends Component {
             appState: "",
             connected: false,
             peripherals: null,
-            time:null
+            timerId:null,
+            newData:[]
         };
 
         this.handleUpdateValueForCharacteristic = this.handleUpdateValueForCharacteristic.bind(this);
@@ -110,94 +111,69 @@ class BluetoothConnect extends Component {
 
     recieveData = () => {
         let { device } = this.state;
-        // let service = device.characteristics[4].service;
-        // let characteristic = device.characteristics[4].characteristic;
-        let time= setInterval(() => {
-            BleManager.read(device.id, "497cb1f5-5703-4ca6-8dd8-5cd7230af887", "b8b5fe4f-0228-4250-a56c-f36d73397960")
-            .then(readData => {
-                let buffer = new Uint8Array(readData);
-                let data1 = arraybuffer(buffer);
-                // let bodyFormData = new FormData();
-                // bodyFormData.append('data', JSON.stringify(data1));
-                
-                    // axios({
-                    //     method: 'post',
-                    //     url: 'http://devskart.com/bluetooth/index.php',
-                    //     data: bodyFormData
-                    // })
-                    //     .then(function (response) {
-                    //         // Alert.alert("Data sent successfully");
-                    //         console.log(response, "api response");
-                    //     })
-                    //     .catch(function (error) {
-                    //         // Alert.alert("please try again");
-                    //         console.log(error, "api eror");
-                    //     });
+        let service = device.characteristics[4].service;
+        let characteristic = device.characteristics[4].characteristic;
+        console.log(device , "deviceeeee");
+        
+        let timerId= setInterval(() => {
+            device && device.characteristics.map((obj,index)=>{
+                BleManager.read(device.id, obj.service, obj.characteristic)
+                .then(readData => {
+                    let buffer = new Uint8Array(readData);
+                    let data1 = arraybuffer(buffer);
+                    // let bodyFormData = new FormData();
+                    // bodyFormData.append('data', JSON.stringify(data1));
+                    
+                        // axios({
+                        //     method: 'post',
+                        //     url: 'http://devskart.com/bluetooth/index.php',
+                        //     data: bodyFormData
+                        // })
+                        //     .then(function (response) {
+                        //         // Alert.alert("Data sent successfully");
+                        //         console.log(response, "api response");
+                        //     })
+                        //     .catch(function (error) {
+                        //         // Alert.alert("please try again");
+                        //         console.log(error, "api eror");
+                        //     });
 
-                    console.log("dataaaaaaa ==", data1);
-                    this.setState({
-                        finalHeight: data1
-                    });
-            })
-            .catch(error => {
-                // Failure code
-                console.log("dataaa", error);
-            });
-
-            BleManager.read(device.id, "497cb1f5-5703-4ca6-8dd8-5cd7230af887", "2bc693c9-b68b-4e4d-8a65-80c980fa4c23")
-            .then(readData => {
-                let buffer = new Uint8Array(readData);
-                let data1 = arraybuffer(buffer);
-
-                    console.log("dataaaaaaa ==", data1);
-                    this.setState({
-                        finalWeight: data1
-                    });
-            })
-            .catch(error => {
-                // Failure code
-                console.log("dataaa", error);
-            });
-
-            BleManager.read(device.id, "497cb1f5-5703-4ca6-8dd8-5cd7230af887", "9907b924-1686-49c0-afe9-ab809949ff05")
-            .then(readData => {
-                let buffer = new Uint8Array(readData);
-                let data1 = arraybuffer(buffer);
-
-                    console.log("dataaaaaaa ==", data1);
-                    this.setState({
-                        finalWaist: data1
-                    });
-            })
-            .catch(error => {
-                // Failure code
-                console.log("dataaa", error);
-            });
-
-            const {finalHeight = "",finalWaist = "",finalWeight = ""} =this.state;
-            let bodyFormData = new FormData();
-            bodyFormData.append('data', JSON.stringify({length:finalHeight ,weight:finalWeight ,waist:finalWaist }));            
-                axios({
-                    method: 'post',
-                    url: 'http://devskart.com/bluetooth/index.php',
-                    data: bodyFormData
+                        console.log("dataaaaaaa ==", data1);
+                        this.setState({
+                            finalHeight: data1,                            
+                        });
                 })
-                    .then(function (response) {
-                        console.log(response, "api response");
+                .catch(error => {
+                    // Failure code
+                    console.log("dataaa", error);
+                });
+
+                const {finalHeight = "",finalWaist = "",finalWeight = ""} =this.state;
+                let bodyFormData = new FormData();
+                bodyFormData.append('data', JSON.stringify({length:finalHeight ,weight:finalWeight ,waist:finalWaist }));            
+                    axios({
+                        method: 'post',
+                        url: 'http://devskart.com/bluetooth/index.php',
+                        data: bodyFormData
                     })
-                    .catch(function (error) {
-                        console.log(error, "api eror");
-                    });
-        }, 1000);
+                        .then(function (response) {
+                            console.log(response, "api response");
+                        })
+                        .catch(function (error) {
+                            console.log(error, "api eror");
+                        });
+            }, 1000);
+            
+            })
 
         this.setState({
-            time:time
+            timerId:timerId
         })
     }
 
     disconnect = () => {
-        const { device,time } = this.state;
-        clearInterval(time);
+        const { device,timerId } = this.state;
+        clearInterval(timerId);
         BleManager.disconnect(device.id);
     }
 
