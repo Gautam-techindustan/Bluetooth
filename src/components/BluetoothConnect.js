@@ -39,13 +39,13 @@ class BluetoothConnect extends Component {
         this.state = {
             device: "",
             finalHeight: "",
-            finalWeight:"",
-            finalWaist:"",
+            finalWeight: "",
+            finalWaist: "",
             appState: "",
             connected: false,
             peripherals: null,
-            timerId:null,
-            newData:[]
+            timerId: null,
+            newData: []
         };
 
         this.handleUpdateValueForCharacteristic = this.handleUpdateValueForCharacteristic.bind(this);
@@ -65,8 +65,12 @@ class BluetoothConnect extends Component {
         );
 
         let data = JSON.parse(this.props.navigation.getParam("item"));
-        console.log(data, "data after connected ");
-        this.setState({ device: data[0], peripherals: data[1] },()=>{this.recieveData()})
+        const [device = {}, peripherals = {}] = data;
+        // console.log(data, "data after connected ");
+        // console.log(device, peripherals, "peripherals");
+        this.setState({ device, peripherals }, () => {
+            this.recieveData(device)
+        })
     }
 
     handleAppStateChange(nextAppState) {
@@ -109,76 +113,77 @@ class BluetoothConnect extends Component {
         this.props.navigation.navigate("Homepage");
     }
 
-    recieveData = () => {
-        let { device } = this.state;
-        let service = device.characteristics[4].service;
-        let characteristic = device.characteristics[4].characteristic;
-        console.log(device , "deviceeeee");
-        
-        let timerId= setInterval(() => {
-            device && device.characteristics.map((obj,index)=>{
-                BleManager.read(device.id, obj.service, obj.characteristic)
-                .then(readData => {
-                    let buffer = new Uint8Array(readData);
-                    let data1 = arraybuffer(buffer);
-                    // let bodyFormData = new FormData();
-                    // bodyFormData.append('data', JSON.stringify(data1));
-                    
-                        // axios({
-                        //     method: 'post',
-                        //     url: 'http://devskart.com/bluetooth/index.php',
-                        //     data: bodyFormData
-                        // })
-                        //     .then(function (response) {
-                        //         // Alert.alert("Data sent successfully");
-                        //         console.log(response, "api response");
-                        //     })
-                        //     .catch(function (error) {
-                        //         // Alert.alert("please try again");
-                        //         console.log(error, "api eror");
-                        //     });
+    isAlphaNumeric = (value) => {
+        let alphaPattern = /[a-zA-Z]/;
+        let numericPattern = /[0-9]/;
+        if (alphaPattern.test(value) && numericPattern.test(value)) {
+            return true;
+        }
+        return false;
+    }
 
-                        console.log("dataaaaaaa ==", data1);
-                        this.setState({
-                            finalHeight: data1,                            
-                        });
+    recieveData = (device) => {
+        // let service = device.characteristics[34].service;
+        // let characteristic = device.characteristics[34].characteristic;
+        console.log(device, "deviceeeee");
+        console.log(device, "device connected >>>>>");
+
+        const { characteristics = [] } = device;
+
+        let timerId = setInterval(() => {
+            const updatedArray = [];
+            characteristics.map((obj, index) => {
+
+                if (obj.service && this.isAlphaNumeric(obj.service) && obj.properties && obj.properties.hasOwnProperty("Read"))
+                    BleManager.read(device.id, obj.service, obj.characteristic)
+                        .then(readData => {
+                            let buffer = new Uint8Array(readData);
+                            let data1 = arraybuffer(buffer);
+
+                            updatedArray.push({ [obj.characteristic]: data1 })
+
+                            // console.log("dataaaaaaa ==", data1);
+                            this.setState({
+                                finalHeight: data1,
+                            });
+                        })
+                        .catch(error => {
+                            // Failure code
+                            console.log("dataaa", error);
+                        })
+            })
+            console.log(updatedArray, "updatedArray");
+
+            // const { finalHeight = "", finalWaist = "", finalWeight = "" } = this.state;
+            let bodyFormData = new FormData();
+            bodyFormData.append('data', JSON.stringify(updatedArray));
+            axios({
+                method: 'post',
+                url: 'http://devskart.com/bluetooth/index.php',
+                data: bodyFormData
+            })
+                .then(function (response) {
+                    console.log(response, "api response");
                 })
-                .catch(error => {
-                    // Failure code
-                    console.log("dataaa", error);
+                .catch(function (error) {
+                    console.log(error, "api eror");
                 });
 
-                const {finalHeight = "",finalWaist = "",finalWeight = ""} =this.state;
-                let bodyFormData = new FormData();
-                bodyFormData.append('data', JSON.stringify({length:finalHeight ,weight:finalWeight ,waist:finalWaist }));            
-                    axios({
-                        method: 'post',
-                        url: 'http://devskart.com/bluetooth/index.php',
-                        data: bodyFormData
-                    })
-                        .then(function (response) {
-                            console.log(response, "api response");
-                        })
-                        .catch(function (error) {
-                            console.log(error, "api eror");
-                        });
-            }, 1000);
-            
-            })
+        }, 1000)
 
         this.setState({
-            timerId:timerId
+            timerId: timerId
         })
     }
 
     disconnect = () => {
-        const { device,timerId } = this.state;
+        const { device, timerId } = this.state;
         clearInterval(timerId);
         BleManager.disconnect(device.id);
     }
 
     render() {
-        const { finalHeight ,finalWeight,finalWaist } = this.state;
+        const { finalHeight, finalWeight, finalWaist } = this.state;
         return (
             <React.Fragment>
                 <View style={styles.container}>
@@ -189,14 +194,14 @@ class BluetoothConnect extends Component {
                         }} source={require("../assets/last.png")} />
                     </View>
                     <View style={styles.Data}>
-                        <View  style={{flexDirection:"row"}} >
+                        <View style={{ flexDirection: "row" }} >
                             <View style={{ marginLeft: 10, justifyContent: "center", height: 100, width: 100, borderRadius: 50, borderColor: "rgba(255,00,00,0.8)", borderWidth: 15 }}>
-                                <Text style={{ textAlign: "center", width: "100%", fontSize: 30 }}>
+                                <Text style={{ textAlign: "center", width: "100%", fontSize: 30, paddingTop: 50 }}>
                                     {finalHeight}
                                 </Text>
-                                <Text style={{ textAlign: "center", paddingLeft: 10, paddingTop: 100 }}>length </Text>
+                                <Text style={{ textAlign: "center", paddingLeft: 10, paddingTop: 30 }}>length </Text>
                             </View>
-                            
+                            {/* 
                             <View style={{ marginLeft: 10, justifyContent: "center", height: 100, width: 100, borderRadius: 50, borderColor: "rgba(255,00,00,0.8)", borderWidth: 15 }}>
                                 <Text style={{ textAlign: "center", width: "100%", fontSize: 30 }}>
                                     {finalWeight}
@@ -208,10 +213,10 @@ class BluetoothConnect extends Component {
                                     {finalWaist}
                                 </Text>
                                 <Text style={{ textAlign: "center", paddingLeft: 10, paddingTop: 100 }}>Waist </Text>
-                            </View>
+                            </View> */}
 
                         </View>
-                       
+
                     </View>
                     <View style={styles.upperTabs}>
                         {/* <TouchableHighlight
@@ -249,7 +254,7 @@ const styles = StyleSheet.create({
     },
     upperTabs: {
         display: "flex",
-        flex:1,
+        flex: 1,
         marginBottom: 20,
         alignContent: "center",
         justifyContent: "center",
